@@ -6,27 +6,35 @@
 //
 
 import SwiftUI
-import SwiftData
+import CoreData
+import CoreText
 
 @main
 struct SplitsiesApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+    let persistenceController = PersistenceController.shared
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    init() {
+        registerOrbitronFonts()
+    }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
-        .modelContainer(sharedModelContainer)
+    }
+
+    private func registerOrbitronFonts() {
+        let subdirectories = ["Fonts", "Fonts/Orbitron", "Fonts/Orbitron/static", nil as String?]
+        var fontURLs: [URL] = []
+
+        for subdir in subdirectories {
+            if let urls = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: subdir) {
+                fontURLs.append(contentsOf: urls)
+            }
+        }
+
+        guard !fontURLs.isEmpty else { return }
+        CTFontManagerRegisterFontURLs(fontURLs as CFArray, .process, true, nil)
     }
 }
