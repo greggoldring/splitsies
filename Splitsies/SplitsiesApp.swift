@@ -30,7 +30,7 @@ struct SplitsiesApp: App {
     }()
 
     init() {
-        registerOrbitronFonts()
+        registerSpaceMonoFonts()
     }
 
     var body: some Scene {
@@ -41,17 +41,9 @@ struct SplitsiesApp: App {
         .modelContainer(sharedModelContainer)
     }
 
-    private func registerOrbitronFonts() {
-        let subdirectories = ["Fonts", "Fonts/Orbitron", "Fonts/Orbitron/static", nil as String?]
-        var fontURLs: [URL] = []
-
-        for subdir in subdirectories {
-            if let urls = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: subdir) {
-                fontURLs.append(contentsOf: urls)
-            }
-        }
-
-        guard !fontURLs.isEmpty else { return }
-        CTFontManagerRegisterFontURLs(fontURLs as CFArray, .process, true, nil)
+    private func registerSpaceMonoFonts() {
+        guard let urls = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: "Fonts/SpaceMono"),
+              !urls.isEmpty else { return }
+        CTFontManagerRegisterFontURLs(urls as CFArray, .process, true, nil)
     }
 }

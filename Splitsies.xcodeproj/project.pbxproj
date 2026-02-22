@@ -143,7 +143,6 @@
 				B6255CF82F41597200E33433 /* Views */,
 				B6255CF92F41597300E33433 /* ViewModels */,
 				B6255CFA2F41597400E33433 /* Services */,
-				B6255CFB2F41597500E33433 /* Splitsies/Fonts */,
 			);
 			name = Splitsies;
 			packageProductDependencies = (

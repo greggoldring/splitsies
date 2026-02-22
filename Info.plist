@@ -4,10 +4,8 @@
 <dict>
 	<key>UIAppFonts</key>
 	<array>
-		<string>Fonts/Orbitron/static/Orbitron-Regular.ttf</string>
-		<string>Fonts/Orbitron/static/Orbitron-Medium.ttf</string>
-		<string>Fonts/Orbitron/static/Orbitron-SemiBold.ttf</string>
-		<string>Fonts/Orbitron/static/Orbitron-Bold.ttf</string>
+		<string>Fonts/SpaceMono/SpaceMono-Regular.ttf</string>
+		<string>Fonts/SpaceMono/SpaceMono-Bold.ttf</string>
 	</array>
 	<key>ATSApplicationFontsPath</key>
 	<string>Fonts</string>

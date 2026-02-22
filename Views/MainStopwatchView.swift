@@ -58,7 +58,7 @@ private struct StopwatchContentView: View {
 
                 // Center: Most recent split — font sized to fill available height without overlapping
                 Text(viewModel.mostRecentSplitDisplay)
-                    .font(.system(size: min(230, centerHeight * 0.828), design: .monospaced))
+                    .font(.custom("SpaceMono-Regular", size: min(230, centerHeight * 0.828)))
                     .minimumScaleFactor(0.4)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, maxHeight: centerHeight)
@@ -67,7 +67,7 @@ private struct StopwatchContentView: View {
 
                 // Bottom: Running time (compact so center gets space)
                 Text(viewModel.runningTimeDisplay)
-                    .font(.system(size: 28, design: .monospaced))
+                    .font(.custom("SpaceMono-Regular", size: 28))
                     .foregroundStyle(.secondary)
                     .frame(height: bottomSectionHeight - verticalPad)
             }
@@ -83,7 +83,7 @@ private struct ActionButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.custom("Orbitron-SemiBold", size: 26))
+                .font(.custom("SpaceMono-Bold", size: 26))
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
                 .foregroundColor(.white)

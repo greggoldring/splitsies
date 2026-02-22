@@ -140,8 +140,10 @@ final class StopwatchViewModel {
 
     private func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            let viewModel = self
             Task { @MainActor in
-                self?.displayTime = self?.elapsedTime ?? 0
+                viewModel.displayTime = viewModel.elapsedTime
             }
         }
         timer?.tolerance = 0.05
