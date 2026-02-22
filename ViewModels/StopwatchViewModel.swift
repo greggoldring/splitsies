@@ -1,23 +1,22 @@
 import Foundation
 import SwiftUI
-import CoreData
-import Combine
+import SwiftData
 import UIKit
 
 @MainActor
-final class StopwatchViewModel: ObservableObject {
+@Observable
+final class StopwatchViewModel {
     // Timer state
-    @Published var isRunning: Bool = false
-    @Published var startTime: Date?
-    @Published var pausedElapsed: TimeInterval = 0
-    @Published var currentSplits: [SplitData] = []
+    var isRunning: Bool = false
+    var startTime: Date?
+    var pausedElapsed: TimeInterval = 0
+    var currentSplits: [SplitData] = []
 
     // Display updates (triggered by timer)
-    @Published var displayTime: TimeInterval = 0
+    var displayTime: TimeInterval = 0
 
     private var timer: Timer?
-    private let raceRepository: RaceRepository
-    private let context: NSManagedObjectContext
+    private let modelContext: ModelContext
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd HH:mm"
@@ -30,9 +29,8 @@ final class StopwatchViewModel: ObservableObject {
         let lapDuration: TimeInterval
     }
 
-    init(context: NSManagedObjectContext) {
-        self.context = context
-        self.raceRepository = RaceRepository(context: context)
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
     }
 
     var elapsedTime: TimeInterval {
@@ -105,16 +103,26 @@ final class StopwatchViewModel: ObservableObject {
         pausedElapsed = totalDuration
         displayTime = totalDuration
 
+        // Add final segment (from last lap to stop, or full duration if no laps) so it’s shown and saved
+        let previousSplitTime = currentSplits.last?.splitTime ?? 0
+        let finalLapDuration = totalDuration - previousSplitTime
+        currentSplits.append(SplitData(
+            lapNumber: currentSplits.count + 1,
+            splitTime: totalDuration,
+            lapDuration: finalLapDuration
+        ))
+
         let name = Self.dateFormatter.string(from: Date())
-        let race = Race(context: context, name: name, totalDuration: totalDuration, splits: [])
+        let race = Race(name: name, totalDuration: totalDuration, splits: [])
+        modelContext.insert(race)
 
         for data in currentSplits {
-            let split = Split(context: context, lapNumber: data.lapNumber, splitTime: data.splitTime, lapDuration: data.lapDuration, race: race)
-            race.addToSplits(split)
+            let split = Split(lapNumber: data.lapNumber, splitTime: data.splitTime, lapDuration: data.lapDuration, race: race)
+            modelContext.insert(split)
         }
 
         do {
-            try context.save()
+            try modelContext.save()
         } catch {
             print("Failed to save race: \(error)")
         }

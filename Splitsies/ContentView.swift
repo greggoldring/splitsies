@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import CoreData
+import SwiftData
 
 struct ContentView: View {
     var body: some View {
@@ -25,5 +25,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        .modelContainer(for: [Item.self, Race.self, Split.self], inMemory: true)
 }

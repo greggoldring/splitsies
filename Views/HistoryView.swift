@@ -1,16 +1,13 @@
 import SwiftUI
-import CoreData
+import SwiftData
 
 struct HistoryView: View {
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Race.createdAt, ascending: false)],
-        animation: .default
-    ) private var races: FetchedResults<Race>
+    @Query(sort: \Race.createdAt, order: .reverse) private var races: [Race]
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
-                ForEach(races, id: \.objectID) { race in
+                ForEach(races, id: \.id) { race in
                     NavigationLink {
                         RaceDetailView(race: race)
                     } label: {
@@ -28,7 +25,7 @@ private struct RaceRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(race.name ?? "")
+            Text(race.name)
                 .font(.headline)
             HStack(spacing: 16) {
                 Text(formatDuration(race.totalDuration))
@@ -53,5 +50,5 @@ private struct RaceRow: View {
 
 #Preview {
     HistoryView()
-        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        .modelContainer(for: [Item.self, Race.self, Split.self], inMemory: true)
 }

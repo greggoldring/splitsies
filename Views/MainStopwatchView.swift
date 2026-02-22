@@ -1,59 +1,76 @@
 import SwiftUI
-import CoreData
+import SwiftData
 
 struct MainStopwatchView: View {
-    @Environment(\.managedObjectContext) private var managedObjectContext
+    @Environment(\.modelContext) private var modelContext
     @State private var viewModel: StopwatchViewModel?
 
     var body: some View {
         Group {
             if let vm = viewModel {
-                stopwatchContent(viewModel: vm)
+                StopwatchContentView(viewModel: vm)
             } else {
                 ProgressView()
                     .onAppear {
-                        viewModel = StopwatchViewModel(context: managedObjectContext)
+                        viewModel = StopwatchViewModel(modelContext: modelContext)
                     }
             }
         }
     }
+}
 
-    private func stopwatchContent(viewModel: StopwatchViewModel) -> some View {
-        VStack(spacing: 0) {
-                // Top row: Start/Lap (left) and Stop/Reset (right)
-                HStack(spacing: 0) {
+/// Separate view so SwiftUI subscribes to @Observable view model updates (timer, splits, etc.)
+private struct StopwatchContentView: View {
+    var viewModel: StopwatchViewModel
+
+    var body: some View {
+        GeometryReader { geo in
+            let total = geo.size.height
+            let safeTop = geo.safeAreaInsets.top
+            let safeBottom = geo.safeAreaInsets.bottom
+            let horizontalPad: CGFloat = 12
+            let verticalPad: CGFloat = 12
+
+            // Allocate ~28% of height for button row (capped), rest for split time + running time
+            let buttonRowHeight = min(max(100, total * 0.28), 160)
+            let bottomSectionHeight: CGFloat = 56
+            let centerHeight = max(60, total - safeTop - safeBottom - buttonRowHeight - bottomSectionHeight - verticalPad * 3)
+
+            VStack(spacing: 0) {
+                // Top row: Start/Lap and Stop/Reset — as large as the allocated row
+                HStack(spacing: 12) {
                     ActionButton(
                         title: viewModel.startLapButtonTitle,
                         color: .green,
                         action: { viewModel.start() }
                     )
-                    Spacer()
                     ActionButton(
                         title: viewModel.stopResetButtonTitle,
                         color: viewModel.isRunning ? .red : .orange,
                         action: { viewModel.stopOrReset() }
                     )
                 }
-                .padding(.horizontal, 8)
-                .padding(.top, 8)
-                .frame(height: 100)
+                .padding(.horizontal, horizontalPad)
+                .padding(.top, verticalPad)
+                .frame(height: buttonRowHeight)
 
-                Spacer()
+                Spacer(minLength: verticalPad)
 
-                // Center: Most recent split (very large)
+                // Center: Most recent split — font sized to fill available height without overlapping
                 Text(viewModel.mostRecentSplitDisplay)
-                    .font(.custom("Orbitron-Bold", size: 144).monospacedDigit())
-                    .minimumScaleFactor(0.5)
+                    .font(.system(size: min(230, centerHeight * 0.828), design: .monospaced))
+                    .minimumScaleFactor(0.4)
                     .lineLimit(1)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, maxHeight: centerHeight)
 
-                Spacer()
+                Spacer(minLength: verticalPad)
 
-                // Bottom-center: Running time
+                // Bottom: Running time (compact so center gets space)
                 Text(viewModel.runningTimeDisplay)
-                    .font(.custom("Orbitron-Medium", size: 32).monospacedDigit())
+                    .font(.system(size: 28, design: .monospaced))
                     .foregroundStyle(.secondary)
-                    .padding(.bottom, 32)
+                    .frame(height: bottomSectionHeight - verticalPad)
+            }
         }
     }
 }
@@ -66,9 +83,11 @@ private struct ActionButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.custom("Orbitron-SemiBold", size: 24))
+                .font(.custom("Orbitron-SemiBold", size: 26))
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
                 .foregroundColor(.white)
-                .frame(minWidth: 120, minHeight: 120)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(.regularMaterial)
@@ -86,5 +105,5 @@ private struct ActionButton: View {
 
 #Preview {
     MainStopwatchView()
-        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        .modelContainer(for: [Item.self, Race.self, Split.self], inMemory: true)
 }

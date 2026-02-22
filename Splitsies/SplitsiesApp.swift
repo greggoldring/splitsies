@@ -6,12 +6,28 @@
 //
 
 import SwiftUI
-import CoreData
+import SwiftData
 import CoreText
 
 @main
 struct SplitsiesApp: App {
-    let persistenceController = PersistenceController.shared
+    var sharedModelContainer: ModelContainer = {
+        let schema = Schema([
+            Item.self,
+            Race.self,
+            Split.self
+        ])
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false
+        )
+
+        do {
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }()
 
     init() {
         registerOrbitronFonts()
@@ -20,8 +36,9 @@ struct SplitsiesApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .preferredColorScheme(.dark)
         }
+        .modelContainer(sharedModelContainer)
     }
 
     private func registerOrbitronFonts() {

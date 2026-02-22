@@ -1,5 +1,5 @@
 import SwiftUI
-import CoreData
+import SwiftData
 
 struct RaceDetailView: View {
     let race: Race
@@ -18,7 +18,7 @@ struct RaceDetailView: View {
             Section("Splits") {
                 ForEach(race.splitsArray, id: \.lapNumber) { split in
                     HStack {
-                        Text("Lap \(Int(split.lapNumber))")
+                        Text("Lap \(split.lapNumber)")
                         Spacer()
                         Text(formatDuration(split.lapDuration))
                             .font(.system(.body, design: .monospaced))
@@ -26,7 +26,7 @@ struct RaceDetailView: View {
                 }
             }
         }
-        .navigationTitle(race.name ?? "")
+        .navigationTitle(race.name)
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
