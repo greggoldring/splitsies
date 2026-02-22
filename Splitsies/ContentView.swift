@@ -19,6 +19,12 @@ struct ContentView: View {
                 .tabItem {
                     Label("History", systemImage: "list.bullet")
                 }
+            NavigationStack {
+                CreditsView()
+            }
+            .tabItem {
+                Label("Credits", systemImage: "info.circle")
+            }
         }
     }
 }
