@@ -11,7 +11,7 @@ struct CreditsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Splitsies")
+                Text("Splitsies: Track Cycling Splits")
                     .font(.title.bold())
                 Text("Version \(Bundle.main.appVersion) (\(Bundle.main.buildNumber))")
                     .font(.subheadline)
