@@ -42,31 +42,13 @@ struct SplitsiesApp: App {
     }
 
     private func registerSpaceMonoFonts() {
-        guard let urls = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: "Fonts/SpaceMono"),
-              !urls.isEmpty else {
-            #if DEBUG
-            assertionFailure("SpaceMono fonts not found in bundle at Fonts/SpaceMono")
-            #endif
-            print("Warning: SpaceMono fonts not found in bundle at Fonts/SpaceMono")
+        var urls = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: "Fonts/SpaceMono") ?? []
+        if urls.isEmpty {
+            urls = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: nil) ?? []
+        }
+        guard !urls.isEmpty else {
             return
         }
-        var ctError: Unmanaged<CFError>?
-        let success = CTFontManagerRegisterFontURLs(urls as CFArray, .process, true, &ctError)
-        guard success else {
-            let error = ctError?.takeRetainedValue()
-            #if DEBUG
-            if let error = error {
-                assertionFailure("Failed to register SpaceMono fonts: \(error)")
-            } else {
-                assertionFailure("Failed to register SpaceMono fonts for an unknown reason.")
-            }
-            #endif
-            if let error = error {
-                print("Error: Failed to register SpaceMono fonts: \(error)")
-            } else {
-                print("Error: Failed to register SpaceMono fonts for an unknown reason.")
-            }
-            return
-        }
+        CTFontManagerRegisterFontURLs(urls as CFArray, .process, true, nil)
     }
 }
