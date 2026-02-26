@@ -31,9 +31,9 @@ private struct StopwatchContentView: View {
             let horizontalPad: CGFloat = 12
             let verticalPad: CGFloat = 12
 
-            // Allocate ~28% of height for button row (capped), rest for split time + running time
-            let buttonRowHeight = min(max(100, total * 0.28), 160)
-            let bottomSectionHeight: CGFloat = 56
+            // Allocate less height to buttons/bottom so center split time can be as large as possible
+            let buttonRowHeight = min(max(88, total * 0.22), 140)
+            let bottomSectionHeight: CGFloat = 44
             let centerHeight = max(60, total - safeTop - safeBottom - buttonRowHeight - bottomSectionHeight - verticalPad * 3)
 
             VStack(spacing: 0) {
@@ -56,10 +56,10 @@ private struct StopwatchContentView: View {
 
                 Spacer(minLength: verticalPad)
 
-                // Center: Most recent split — font sized to fill available height without overlapping
+                // Center: Most recent split — font as large as possible to fill available height
                 Text(viewModel.mostRecentSplitDisplay)
-                    .font(.custom("SpaceMono-Regular", size: min(230, centerHeight * 0.828)))
-                    .minimumScaleFactor(0.4)
+                    .font(.custom("SpaceMono-Regular", size: min(340, centerHeight * 0.88)))
+                    .minimumScaleFactor(0.35)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, maxHeight: centerHeight)
 
