@@ -41,8 +41,11 @@ final class StopwatchViewModel {
     }
 
     var mostRecentSplitDisplay: String {
-        if let last = currentSplits.last {
-            return formatTime(last.lapDuration)
+        if isRunning {
+            if let last = currentSplits.last {
+                return formatTime(last.lapDuration)
+            }
+            return formatTime(elapsedTime)
         }
         return formatTime(elapsedTime)
     }

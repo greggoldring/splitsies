@@ -2,10 +2,16 @@ import SwiftUI
 import SwiftData
 
 struct RaceDetailView: View {
-    let race: Race
+    @Bindable var race: Race
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         List {
+            Section("Name") {
+                TextField("Race name", text: $race.name)
+                    .onSubmit { try? modelContext.save() }
+            }
+
             Section("Summary") {
                 HStack {
                     Text("Total time")
