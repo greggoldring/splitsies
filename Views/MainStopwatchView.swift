@@ -58,6 +58,14 @@ private struct StopwatchContentView: View {
                 .padding(.top, verticalPad)
                 .frame(height: buttonRowHeight)
 
+                Spacer(minLength: verticalPad)
+
+                Text(viewModel.mostRecentSplitDisplay)
+                    .font(.custom("SpaceMono-Regular", size: min(340, centerHeight * 0.88)))
+                    .minimumScaleFactor(0.35)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, maxHeight: centerHeight)
+
                 // Venue + conditions
                 HStack(spacing: 8) {
                     Button {
@@ -94,14 +102,6 @@ private struct StopwatchContentView: View {
                 }
                 .padding(.horizontal, horizontalPad)
                 .frame(height: metaRowHeight)
-
-                Spacer(minLength: verticalPad)
-
-                Text(viewModel.mostRecentSplitDisplay)
-                    .font(.custom("SpaceMono-Regular", size: min(340, centerHeight * 0.88)))
-                    .minimumScaleFactor(0.35)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, maxHeight: centerHeight)
 
                 Spacer(minLength: verticalPad)
 
