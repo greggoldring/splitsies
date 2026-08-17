@@ -139,6 +139,12 @@ private struct RaceRow: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+            if let venue = race.venueName {
+                Text(venue)
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
+            }
         }
         .padding(.vertical, 4)
     }
@@ -164,5 +170,5 @@ private struct ShareSheet: UIViewControllerRepresentable {
 
 #Preview {
     HistoryView()
-        .modelContainer(for: [Item.self, Race.self, Split.self], inMemory: true)
+        .modelContainer(for: [Item.self, Race.self, Split.self, CustomVenue.self], inMemory: true)
 }
