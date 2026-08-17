@@ -9,6 +9,10 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
+    @Query private var customVenues: [CustomVenue]
+
     var body: some View {
         TabView {
             MainStopwatchView()
@@ -20,10 +24,23 @@ struct ContentView: View {
                     Label("History", systemImage: "list.bullet")
                 }
             NavigationStack {
+                SettingsView()
+            }
+            .tabItem {
+                Label("Settings", systemImage: "gearshape")
+            }
+            NavigationStack {
                 CreditsView()
             }
             .tabItem {
                 Label("Credits", systemImage: "info.circle")
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            Task {
+                let service = PressureBackfillService()
+                await service.backfill(modelContext: modelContext, customVenues: Array(customVenues))
             }
         }
     }
@@ -31,5 +48,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Item.self, Race.self, Split.self], inMemory: true)
+        .modelContainer(for: [Item.self, Race.self, Split.self, CustomVenue.self], inMemory: true)
 }

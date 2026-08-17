@@ -21,7 +21,9 @@ struct MainStopwatchView: View {
 
 /// Separate view so SwiftUI subscribes to @Observable view model updates (timer, splits, etc.)
 private struct StopwatchContentView: View {
-    var viewModel: StopwatchViewModel
+    @Bindable var viewModel: StopwatchViewModel
+    @State private var selectedVenueID: String?
+    @State private var showVenuePicker = false
 
     var body: some View {
         GeometryReader { geo in
@@ -29,15 +31,17 @@ private struct StopwatchContentView: View {
             let safeTop = geo.safeAreaInsets.top
             let safeBottom = geo.safeAreaInsets.bottom
             let horizontalPad: CGFloat = 12
-            let verticalPad: CGFloat = 12
+            let verticalPad: CGFloat = 8
 
-            // Allocate less height to buttons/bottom so center split time can be as large as possible
-            let buttonRowHeight = min(max(88, total * 0.22), 140)
+            let buttonRowHeight = min(max(88, total * 0.20), 140)
+            let metaRowHeight: CGFloat = 36
             let bottomSectionHeight: CGFloat = 44
-            let centerHeight = max(60, total - safeTop - safeBottom - buttonRowHeight - bottomSectionHeight - verticalPad * 3)
+            let centerHeight = max(
+                60,
+                total - safeTop - safeBottom - buttonRowHeight - metaRowHeight - bottomSectionHeight - verticalPad * 4
+            )
 
             VStack(spacing: 0) {
-                // Top row: Start/Lap and Stop/Reset — as large as the allocated row
                 HStack(spacing: 12) {
                     ActionButton(
                         title: viewModel.startLapButtonTitle,
@@ -54,9 +58,45 @@ private struct StopwatchContentView: View {
                 .padding(.top, verticalPad)
                 .frame(height: buttonRowHeight)
 
+                // Venue + conditions
+                HStack(spacing: 8) {
+                    Button {
+                        selectedVenueID = viewModel.selectedVenue?.id
+                        showVenuePicker = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "mappin.and.ellipse")
+                                .font(.caption)
+                            Text(viewModel.selectedVenue?.name ?? "No venue")
+                                .font(.caption)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(viewModel.isRunning)
+
+                    Spacer(minLength: 0)
+
+                    ConditionsChipView(
+                        stationPressureHPa: viewModel.livePressureHPa,
+                        pressureSource: viewModel.livePressureSource,
+                        pending: viewModel.isPressurePending,
+                        temperatureC: viewModel.currentSplits.last?.temperatureC,
+                        relativeHumidityPct: viewModel.currentSplits.last?.relativeHumidityPct,
+                        elevationM: viewModel.selectedVenue?.elevationM,
+                        venueName: viewModel.selectedVenue?.name
+                    )
+                }
+                .padding(.horizontal, horizontalPad)
+                .frame(height: metaRowHeight)
+
                 Spacer(minLength: verticalPad)
 
-                // Center: Most recent split — font as large as possible to fill available height
                 Text(viewModel.mostRecentSplitDisplay)
                     .font(.custom("SpaceMono-Regular", size: min(340, centerHeight * 0.88)))
                     .minimumScaleFactor(0.35)
@@ -65,11 +105,15 @@ private struct StopwatchContentView: View {
 
                 Spacer(minLength: verticalPad)
 
-                // Bottom: Running time (compact so center gets space)
                 Text(viewModel.runningTimeDisplay)
                     .font(.custom("SpaceMono-Regular", size: 28))
                     .foregroundStyle(.secondary)
                     .frame(height: bottomSectionHeight - verticalPad)
+            }
+        }
+        .sheet(isPresented: $showVenuePicker) {
+            VenuePickerView(selectedVenueID: $selectedVenueID) { venue in
+                viewModel.selectVenue(venue)
             }
         }
     }
@@ -105,5 +149,5 @@ private struct ActionButton: View {
 
 #Preview {
     MainStopwatchView()
-        .modelContainer(for: [Item.self, Race.self, Split.self], inMemory: true)
+        .modelContainer(for: [Item.self, Race.self, Split.self, CustomVenue.self], inMemory: true)
 }

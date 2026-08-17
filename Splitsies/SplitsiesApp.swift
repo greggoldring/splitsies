@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import CoreText
 
 @main
 struct SplitsiesApp: App {
@@ -15,7 +14,8 @@ struct SplitsiesApp: App {
         let schema = Schema([
             Item.self,
             Race.self,
-            Split.self
+            Split.self,
+            CustomVenue.self
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
@@ -25,13 +25,25 @@ struct SplitsiesApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            // Lightweight recovery when the on-disk store predates new pressure/venue fields.
+            let storeURL = modelConfiguration.url
+            try? FileManager.default.removeItem(at: storeURL)
+            let related = [
+                storeURL.appendingPathExtension("wal"),
+                storeURL.appendingPathExtension("shm"),
+                URL(fileURLWithPath: storeURL.path + "-wal"),
+                URL(fileURLWithPath: storeURL.path + "-shm")
+            ]
+            for url in related {
+                try? FileManager.default.removeItem(at: url)
+            }
+            do {
+                return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            } catch {
+                fatalError("Could not create ModelContainer: \(error)")
+            }
         }
     }()
-
-    init() {
-        registerSpaceMonoFonts()
-    }
 
     var body: some Scene {
         WindowGroup {
@@ -39,16 +51,5 @@ struct SplitsiesApp: App {
                 .preferredColorScheme(.dark)
         }
         .modelContainer(sharedModelContainer)
-    }
-
-    private func registerSpaceMonoFonts() {
-        var urls = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: "Fonts/SpaceMono") ?? []
-        if urls.isEmpty {
-            urls = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: nil) ?? []
-        }
-        guard !urls.isEmpty else {
-            return
-        }
-        CTFontManagerRegisterFontURLs(urls as CFArray, .process, true, nil)
     }
 }
