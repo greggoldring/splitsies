@@ -173,6 +173,7 @@ final class StopwatchViewModel {
             lapDuration: finalLapDuration
         ))
 
+        let pressureAtSave = barometer.latestStationPressureHPa
         barometer.stopUpdates()
 
         let name = Self.dateFormatter.string(from: Date())
@@ -180,13 +181,17 @@ final class StopwatchViewModel {
         modelContext.insert(race)
 
         for data in currentSplits {
+            let stationPressureHPa = data.stationPressureHPa ?? pressureAtSave
+            let pressureSource: PressureSource = data.stationPressureHPa == nil && pressureAtSave != nil
+                ? .barometer
+                : data.pressureSource
             let split = Split(
                 lapNumber: data.lapNumber,
                 splitTime: data.splitTime,
                 lapDuration: data.lapDuration,
                 race: race,
-                stationPressureHPa: data.stationPressureHPa,
-                pressureSource: data.pressureSource,
+                stationPressureHPa: stationPressureHPa,
+                pressureSource: pressureSource,
                 capturedAt: data.capturedAt,
                 venueID: data.venueID,
                 temperatureC: data.temperatureC,

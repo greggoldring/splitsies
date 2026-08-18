@@ -52,6 +52,30 @@ struct BarometerServiceTests {
         #expect(barometer.stopCount == 1)
     }
 
+    @Test @MainActor func stopwatchSavesLatestBarometerPressureForUnstampedLaps() throws {
+        let container = try ModelContainer(
+            for: Race.self, Split.self, CustomVenue.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let context = ModelContext(container)
+        let barometer = MockBarometerService(isAvailable: true, pressureHPa: nil)
+        let vm = StopwatchViewModel(modelContext: context, barometer: barometer)
+
+        vm.start()
+        vm.lap()
+        #expect(vm.currentSplits[0].stationPressureHPa == nil)
+
+        barometer.latestStationPressureHPa = 1008.4
+        vm.stopOrReset()
+
+        let races = try context.fetch(FetchDescriptor<Race>())
+        #expect(races.count == 1)
+        let savedSplits = races[0].splitsArray
+        #expect(savedSplits.count == 2)
+        #expect(savedSplits.allSatisfy { $0.stationPressureHPa == 1008.4 })
+        #expect(savedSplits.allSatisfy { $0.pressureSource == .barometer })
+    }
+
     @Test @MainActor func stopwatchWorksWithoutBarometer() throws {
         let container = try ModelContainer(
             for: Race.self, Split.self, CustomVenue.self,
