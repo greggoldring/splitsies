@@ -62,7 +62,7 @@ private struct StopwatchContentView: View {
 
                 Text(viewModel.mostRecentSplitDisplay)
                     .font(.custom("SpaceMono-Regular", size: min(340, centerHeight * 0.88)))
-                    .minimumScaleFactor(0.35)
+                    .minimumScaleFactor(0.2)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, maxHeight: centerHeight)
 
@@ -151,3 +151,82 @@ private struct ActionButton: View {
     MainStopwatchView()
         .modelContainer(for: [Item.self, Race.self, Split.self, CustomVenue.self], inMemory: true)
 }
+
+#if DEBUG
+#Preview("Stopwatch 2:26.11 - iPhone", traits: .fixedLayout(width: 428, height: 926)) {
+    StopwatchPreviewFixture(lapDuration: 146.1101)
+}
+
+#Preview("Stopwatch 2:26.11 - iPad Landscape", traits: .fixedLayout(width: 1366, height: 1024)) {
+    StopwatchPreviewFixture(lapDuration: 146.1101)
+}
+
+@MainActor
+private struct StopwatchPreviewFixture: View {
+    private let container: ModelContainer
+    @State private var viewModel: StopwatchViewModel
+
+    init(lapDuration: TimeInterval) {
+        let schema = Schema([
+            Item.self,
+            Race.self,
+            Split.self,
+            CustomVenue.self
+        ])
+        let configuration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: true
+        )
+
+        do {
+            let container = try ModelContainer(for: schema, configurations: [configuration])
+            let venue = VenueRef(
+                id: "preview-burnaby-velodrome",
+                name: "Burnaby Velodrome",
+                city: "Burnaby",
+                region: "BC",
+                country: "Canada",
+                countryCode: "CA",
+                latitude: 49.2306,
+                longitude: -122.9630,
+                elevationM: 120,
+                indoor: true,
+                status: .active,
+                isCustom: false
+            )
+            let viewModel = StopwatchViewModel(
+                modelContext: container.mainContext,
+                barometer: MockBarometerService(pressureHPa: 934.9)
+            )
+            viewModel.isRunning = true
+            viewModel.startTime = Date(timeIntervalSinceNow: -lapDuration)
+            viewModel.displayTime = lapDuration
+            viewModel.selectedVenue = venue
+            viewModel.currentSplits = [
+                StopwatchViewModel.SplitData(
+                    lapNumber: 1,
+                    splitTime: lapDuration,
+                    lapDuration: lapDuration,
+                    capturedAt: .now,
+                    stationPressureHPa: 934.9,
+                    pressureSource: .barometer,
+                    venueID: venue.id,
+                    temperatureC: 21,
+                    relativeHumidityPct: 48
+                )
+            ]
+
+            self.container = container
+            _viewModel = State(initialValue: viewModel)
+        } catch {
+            fatalError("Could not create stopwatch preview: \(error)")
+        }
+    }
+
+    var body: some View {
+        StopwatchContentView(viewModel: viewModel)
+            .modelContainer(container)
+            .preferredColorScheme(.dark)
+    }
+}
+#endif

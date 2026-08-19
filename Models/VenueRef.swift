@@ -24,7 +24,7 @@ struct VenueRef: Identifiable, Hashable, Sendable {
         return parts.joined(separator: ", ")
     }
 
-    static func from(_ bundled: BundledVelodrome) -> VenueRef {
+    nonisolated static func from(_ bundled: BundledVelodrome) -> VenueRef {
         VenueRef(
             id: bundled.id,
             name: bundled.name,
@@ -41,7 +41,7 @@ struct VenueRef: Identifiable, Hashable, Sendable {
         )
     }
 
-    static func from(_ custom: CustomVenue) -> VenueRef {
+    nonisolated static func from(_ custom: CustomVenue) -> VenueRef {
         VenueRef(
             id: custom.id,
             name: custom.name,
