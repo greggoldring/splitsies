@@ -48,12 +48,12 @@ final class StopwatchViewModel {
         modelContext: ModelContext,
         barometer: (any BarometerProviding)? = nil,
         backfill: PressureBackfillService? = nil,
-        catalog: VenueCatalog = .shared
+        catalog: VenueCatalog? = nil
     ) {
         self.modelContext = modelContext
         self.barometer = barometer ?? BarometerService()
         self.backfill = backfill ?? PressureBackfillService()
-        self.catalog = catalog
+        self.catalog = catalog ?? .shared
         restoreLastVenue()
     }
 

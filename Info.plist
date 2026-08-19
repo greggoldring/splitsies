@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>Splitsies: Track Cycling Splits</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSMotionUsageDescription</key>
 	<string>Splitsies uses the barometer to record air pressure with your splits.</string>
 	<key>UIAppFonts</key>

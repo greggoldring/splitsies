@@ -37,6 +37,7 @@ If **1.0 (1)** has never been uploaded, keep it. If it is already in App Store C
 - [ ] Destination for Archive is **Any iOS Device (arm64)**, not a simulator.
 - [ ] App icon is present (`Splitsies/Assets.xcassets/AppIcon.appiconset`).
 - [ ] Privacy policy is live at https://greggoldring.github.io/splitsies/ (GitHub Pages from `docs/` on `main`).
+- [ ] Export compliance plist key is present: `ITSAppUsesNonExemptEncryption` = `false`.
 
 ### Privacy answers (review risk)
 
@@ -53,7 +54,7 @@ Motion / barometer: `NSMotionUsageDescription` is already in `Info.plist`.
 5. Select the new archive → **Distribute App**.
 6. **App Store Connect** → **Upload** → Next.
 7. Leave automatically manage signing selected.
-8. Confirm export compliance when asked: the app uses HTTPS only and has no `ITSAppUsesNonExemptEncryption` key. Choose that you use encryption **and** that it is **exempt** (standard HTTPS).
+8. Confirm export compliance if asked: the app uses HTTPS only and `ITSAppUsesNonExemptEncryption` is set to `false`.
 9. Upload. Wait until Organizer reports success.
 
 Processing in App Store Connect usually takes a few minutes to an hour. The build appears under the app → **TestFlight**.

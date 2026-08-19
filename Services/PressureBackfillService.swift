@@ -8,9 +8,9 @@ final class PressureBackfillService {
     private let weather: any WeatherProviding
     private let catalog: VenueCatalog
 
-    init(weather: any WeatherProviding = OpenMeteoWeatherProvider(), catalog: VenueCatalog = .shared) {
-        self.weather = weather
-        self.catalog = catalog
+    init(weather: (any WeatherProviding)? = nil, catalog: VenueCatalog? = nil) {
+        self.weather = weather ?? OpenMeteoWeatherProvider()
+        self.catalog = catalog ?? .shared
     }
 
     /// Find splits needing backfill and fill them. Returns number of splits updated.
