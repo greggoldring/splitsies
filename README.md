@@ -15,7 +15,8 @@ iPhone and iPad, iOS 17.0+. No account, no sign-in. Race history lives in on-dev
   cached continuously and stamped at the instant of the split, so capturing never blocks.
 - **Weather backfill for splits with no barometer reading.** iPads and older devices have no
   barometer. For those splits, Splitsies can look up hourly pressure for the venue from
-  Open-Meteo and fill it in after the fact. Optional — see [Privacy and network use](#privacy-and-network-use).
+  Open-Meteo and fill it in after the fact, using coordinates coarsened to ~11 km. Optional and
+  switchable off — see [Privacy and network use](#privacy-and-network-use).
 - **Venue catalog.** 128 bundled velodromes (`Splitsies/Resources/velodromes.json`) with
   coordinates and elevation, searchable and grouped by country. You can add custom venues
   by hand. Demolished venues stay in the dataset so historical splits keep resolving.
@@ -75,10 +76,11 @@ xcodebuild test -project Splitsies.xcodeproj -scheme Splitsies -destination 'pla
 
 Or ⌘U in Xcode, which runs the UI tests as well.
 
-- `SplitsiesTests` — 21 tests covering the pressure math, the velodrome catalog, the
-  barometer stamp-at-split flow, and the backfill grouping/never-overwrite rules. These are
-  hermetic: the backfill tests inject a `MockWeatherProvider`, so **no test hits the
-  network**.
+- `SplitsiesTests` — 26 tests (33 cases; one is parameterized over eight coordinate inputs)
+  covering the pressure math, the velodrome catalog, the barometer stamp-at-split flow, the
+  backfill grouping/never-overwrite rules, and the coordinate coarsening described below.
+  These are hermetic: the backfill tests inject a `MockWeatherProvider` and the provider tests
+  assert on built URLs, so **no test hits the network**.
 - `SplitsiesUITests` — launch and smoke tests.
 
 ## Project layout
@@ -121,11 +123,18 @@ reads the device's GPS location; the coordinates it sends belong to the *venue* 
 The lookup is controlled by **Settings → Privacy & Offline → Weather API lookups**, which is
 **on by default**. With it off, no network request is made at all.
 
-> **⚠️ Known discrepancy.** The published privacy policy in [`docs/index.html`](docs/index.html)
-> states that the app "does not transmit data off your device," which is not accurate while
-> the Open-Meteo lookup exists. `DEPLOY.md` flags this too. This needs resolving — either by
-> amending the policy or by changing what the app sends — before the next App Store
-> submission. It is a product decision, not a docs fix.
+Coordinates are coarsened to **one decimal place** (~11 km, less at high latitudes) by
+`OpenMeteoWeatherProvider.coarsenedCoordinate` before the request is built. That is the single
+point where coordinates leave the device, so the bound holds for custom venues too — their
+lat/lon are typed by hand and are not rounded anywhere else.
+
+The archive endpoint also carries the session's UTC date (`start_date`/`end_date`). The hour is
+not transmitted; it is used locally to pick from the returned hourly array.
+
+> The privacy policy in [`docs/index.html`](docs/index.html) describes this lookup, and the
+> one-decimal-place bound is stated there. **If you widen that precision, update the policy in
+> the same change** — `OpenMeteoWeatherProviderTests` will fail if the bound changes, which is
+> deliberate.
 
 ## Releasing
 
