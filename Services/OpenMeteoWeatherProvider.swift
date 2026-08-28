@@ -45,13 +45,34 @@ struct OpenMeteoWeatherProvider: WeatherProviding {
         return Self.nearestSample(in: decoded, to: date)
     }
 
+    // MARK: - Coordinate coarsening
+
+    /// Decimal places of latitude/longitude sent to the weather API.
+    /// One place is ~11 km — at or below the resolution of the models behind these
+    /// endpoints, so pressure is effectively unchanged, and far coarser than any
+    /// gradient this app cares about.
+    ///
+    /// This is the single point where coordinates leave the device, so rounding here
+    /// makes the precision uniform no matter where the venue came from. That matters:
+    /// bundled venues are capped at 3 decimals, but custom-venue coordinates are typed
+    /// by the user and were previously sent verbatim at whatever precision they entered.
+    /// The published privacy policy states this 1-place bound, so don't widen it without
+    /// updating `docs/index.html` to match.
+    static let coordinateDecimalPlaces = 1
+
+    /// Format a coordinate for the query string, coarsened and locale-independent
+    /// (`locale: nil` keeps the separator a `.` regardless of the user's region).
+    nonisolated static func coarsenedCoordinate(_ degrees: Double) -> String {
+        String(format: "%.\(coordinateDecimalPlaces)f", locale: nil, degrees)
+    }
+
     // MARK: - URL builders
 
-    private func forecastURL(latitude: Double, longitude: Double) throws -> URL {
+    func forecastURL(latitude: Double, longitude: Double) throws -> URL {
         var components = URLComponents(url: configuration.forecastBaseURL, resolvingAgainstBaseURL: false)!
         components.queryItems = [
-            URLQueryItem(name: "latitude", value: String(latitude)),
-            URLQueryItem(name: "longitude", value: String(longitude)),
+            URLQueryItem(name: "latitude", value: Self.coarsenedCoordinate(latitude)),
+            URLQueryItem(name: "longitude", value: Self.coarsenedCoordinate(longitude)),
             URLQueryItem(name: "hourly", value: "surface_pressure,pressure_msl,temperature_2m,relative_humidity_2m"),
             URLQueryItem(name: "past_days", value: "\(forecastLookbackDays)"),
             URLQueryItem(name: "forecast_days", value: "1"),
@@ -61,13 +82,13 @@ struct OpenMeteoWeatherProvider: WeatherProviding {
         return url
     }
 
-    private func archiveURL(latitude: Double, longitude: Double, date: Date) throws -> URL {
+    func archiveURL(latitude: Double, longitude: Double, date: Date) throws -> URL {
         let formatter = Self.dayFormatter
         let day = formatter.string(from: date)
         var components = URLComponents(url: configuration.archiveBaseURL, resolvingAgainstBaseURL: false)!
         components.queryItems = [
-            URLQueryItem(name: "latitude", value: String(latitude)),
-            URLQueryItem(name: "longitude", value: String(longitude)),
+            URLQueryItem(name: "latitude", value: Self.coarsenedCoordinate(latitude)),
+            URLQueryItem(name: "longitude", value: Self.coarsenedCoordinate(longitude)),
             URLQueryItem(name: "hourly", value: "surface_pressure,pressure_msl,temperature_2m,relative_humidity_2m"),
             URLQueryItem(name: "start_date", value: day),
             URLQueryItem(name: "end_date", value: day),

@@ -41,7 +41,9 @@ If **1.0 (1)** has never been uploaded, keep it. If it is already in App Store C
 
 ### Privacy answers (review risk)
 
-`docs/index.html` says the app never transmits data off-device. Optional **Open-Meteo** weather lookups send **venue coordinates** (not GPS) when Weather API lookups are on in Settings. App Privacy in App Store Connect should mention this third-party request. Update the privacy page before submit if you want the listing and the policy to match.
+`docs/index.html` describes the optional **Open-Meteo** lookup, so the policy and the app now agree. What the request carries: **venue coordinates coarsened to one decimal place** (~11 km, never GPS — the app does not link CoreLocation) plus, on the archive endpoint, the session's UTC date. No API key, no headers, nothing identifying. Only fires when Weather API lookups are on in Settings (default on) *and* the split has no barometer reading — so on a barometer-equipped iPhone, never.
+
+App Privacy in App Store Connect still needs to declare this third-party request. Coarse location is arguably the wrong category, since the coordinates are a velodrome's and not the user's — check Apple's current definitions at submit time. If you change what the request sends, update `docs/index.html` in the same change; the one-decimal-place bound is stated on that page.
 
 Motion / barometer: `NSMotionUsageDescription` is already in `Info.plist`.
 
@@ -81,7 +83,7 @@ Do this once for the first release; for later versions, add a new version and at
    - Age rating
    - Screenshots for the device sizes Apple requires (iPhone; iPad if you keep iPad as a supported destination)
    - Description, keywords, support URL, and a support email
-4. **App Privacy**: declare that optional weather lookups send venue coordinates to Open-Meteo. Race history and barometer readings stay on device.
+4. **App Privacy**: declare that optional weather lookups send coarsened venue coordinates (one decimal place, ~11 km) and the session date to Open-Meteo. Race history and barometer readings stay on device. See the privacy note above for the category caveat.
 5. **Pricing and Availability**.
 6. **Add for Review** → **Submit to App Review**.
 
