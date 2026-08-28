@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "6BE11A2B-7C5B-45C2-B94D-16087B198376",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Splitsies.xcodeproj",
+      "identifier" : "B6255CCA2F41596C00E33433",
+      "name" : "Splitsies"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Splitsies.xcodeproj",
+        "identifier" : "B6255CD92F41597000E33433",
+        "name" : "SplitsiesTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Splitsies.xcodeproj",
+        "identifier" : "B6255CE32F41597000E33433",
+        "name" : "SplitsiesUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

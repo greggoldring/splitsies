@@ -24,6 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		57BCF2B230365A8900F03DCB /* Splitsies.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = file; path = Splitsies.xctestplan; sourceTree = "<group>"; };
 		B6255CCB2F41596C00E33433 /* Splitsies.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Splitsies.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6255CDA2F41597000E33433 /* SplitsiesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitsiesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6255CE42F41597000E33433 /* SplitsiesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitsiesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -100,6 +101,7 @@
 		B6255CC22F41596C00E33433 = {
 			isa = PBXGroup;
 			children = (
+				57BCF2B230365A8900F03DCB /* Splitsies.xctestplan */,
 				B6255CCD2F41596C00E33433 /* Splitsies */,
 				B6255CF72F41597100E33433 /* Models */,
 				B6255CF82F41597200E33433 /* Views */,
